@@ -11,9 +11,9 @@ const uint8_t CyFxUSB30DeviceDscr[] __attribute__((aligned(32))) =
     0x12,                           /* Descriptor size */
     CY_U3P_USB_DEVICE_DESCR,        /* Device descriptor type */
     0x10,0x03,                      /* USB 3.1 */
-    0xEF,                           /* Device class */
-    0x02,                           /* Device sub-class */
-    0x01,                           /* Device protocol */
+    0x00,                           /* Device class */
+    0x00,                           /* Device sub-class */
+    0x00,                           /* Device protocol */
     0x09,                           /* Maxpacket size for EP0 : 2^9 */
     VENDOR_ID,                      /* Vendor ID (LE) */
     DEVICE_ID,                      /* Product ID (LE ) */
@@ -30,9 +30,9 @@ const uint8_t CyFxUSB20DeviceDscr[] __attribute__((aligned(32))) =
     0x12,                           /* Descriptor size */
     CY_U3P_USB_DEVICE_DESCR,        /* Device descriptor type */
     0x10,0x02,                      /* USB 2.10 */
-    0xEF,                           /* Device class */
-    0x02,                           /* Device sub-class */
-    0x01,                           /* Device protocol */
+    0x00,                           /* Device class */
+    0x00,                           /* Device sub-class */
+    0x00,                           /* Device protocol */
     0x40,                           /* Maxpacket size for EP0 : 64 bytes */
     VENDOR_ID,                      /* Vendor ID (LE) */
     DEVICE_ID,                      /* Product ID (LE) */
@@ -88,15 +88,12 @@ const uint8_t CyFxUSBSSConfigDscr1[] __attribute__((aligned(32))) =
 {
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
-    0x34, 0x00,                     /* wTotalLength */
+    0x2C, 0x00,                     /* wTotalLength */
     0x01,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
     0x32,                           /* Max power consumption of device (in 8mA unit) : 400mA */
-
-    //IAD Header
-    0x8, 0xB, 0, 1, 0x8 /* Mass Storage */, 6 /* SCSI transparent */, 0x50 /* Bulk-only Transport BOT */ , 0x00,
 
     //CD-ROM Drive
     0x09,                   // bLength

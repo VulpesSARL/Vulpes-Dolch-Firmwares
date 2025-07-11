@@ -24,9 +24,9 @@ const uint8_t CyFxUSB30DeviceDscr[] __attribute__((aligned(32))) =
     0x12,                           /* Descriptor size */
     CY_U3P_USB_DEVICE_DESCR,        /* Device descriptor type */
     0x10,0x03,                      /* USB 3.1 */
-    0xEF,                           /* Device class */
-    0x02,                           /* Device sub-class */
-    0x01,                           /* Device protocol */
+    0x00,                           /* Device class */
+    0x00,                           /* Device sub-class */
+    0x00,                           /* Device protocol */
     0x09,                           /* Maxpacket size for EP0 : 2^9 */
     VENDOR_ID,                      /* Vendor ID (LE) */
     DEVICE_ID,                      /* Product ID (LE ) */
@@ -43,9 +43,9 @@ const uint8_t CyFxUSB20DeviceDscr[] __attribute__((aligned(32))) =
     0x12,                           /* Descriptor size */
     CY_U3P_USB_DEVICE_DESCR,        /* Device descriptor type */
     0x10,0x02,                      /* USB 2.10 */
-    0xEF,                           /* Device class */
-    0x02,                           /* Device sub-class */
-    0x01,                           /* Device protocol */
+    0x00,                           /* Device class */
+    0x00,                           /* Device sub-class */
+    0x00,                           /* Device protocol */
     0x40,                           /* Maxpacket size for EP0 : 64 bytes */
     VENDOR_ID,                      /* Vendor ID (LE) */
     DEVICE_ID,                      /* Product ID (LE) */
@@ -101,15 +101,12 @@ const uint8_t CyFxUSBSSConfigDscr1[] __attribute__((aligned(32))) =
 {
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
-    0x15, 0x01,                     /* wTotalLength */
+    0xF5, 0x00,                     /* wTotalLength */
     0x05,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
     0x32,                           /* Max power consumption of device (in 8mA unit) : 400mA */
-
-    //IAD Header
-    0x8, 0xB, 0, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
 
     /* Interface Descriptor 1 */
     0x09,                           /* Descriptor size */
@@ -163,9 +160,6 @@ const uint8_t CyFxUSBSSConfigDscr1[] __attribute__((aligned(32))) =
 
     //////////////////////////////
 
-    //IAD Header
-    0x8, 0xB, 1, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
-
     /* Interface Descriptor 2 */
     0x09,                           /* Descriptor size */
     CY_U3P_USB_INTRFC_DESCR,        /* Interface Descriptor type */
@@ -217,9 +211,6 @@ const uint8_t CyFxUSBSSConfigDscr1[] __attribute__((aligned(32))) =
     0x00,0x00,                      /* Service interval for the EP : 0 for bulk */
 
     //////////////////////////////
-
-    //IAD Header
-    0x8, 0xB, 2, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
 
     /* Interface Descriptor 3 */
     0x09,                           /* Descriptor size */
@@ -274,9 +265,6 @@ const uint8_t CyFxUSBSSConfigDscr1[] __attribute__((aligned(32))) =
     //////////////////////////////
 
     //MIDI
-
-    //IAD Header
-    0x8, 0xB, MIDI_AC_INTERFACE, 2, MIDI_AUDIO, MIDI_AUDIO_CONTROL, 0x0, 0x00,
 
     0x9, CY_U3P_USB_INTRFC_DESCR, MIDI_AC_INTERFACE, 0x0, 0, MIDI_AUDIO, MIDI_AUDIO_CONTROL, 0x0, 0x06,
     0x9, MIDI_CS_INTERFACE, 0x1, 0x00, 0x01, 0x09, 0x00, 0x1, MIDI_INTERFACE,
@@ -314,15 +302,12 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
 {
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
-    0xE5, 0x00,                     /* wTotalLength */
+    0xC5, 0x00,                     /* wTotalLength */
     0x05,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
     0x32,                           /* Max power consumption of device (in 2mA unit) : 100mA */
-
-    //IAD Header
-    0x8, 0xB, 0, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
 
     /* Interface Descriptor 1 */
     0x09,                           /* Descriptor size */
@@ -362,9 +347,6 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
 
     //////////////////////////////
 
-    //IAD Header
-    0x8, 0xB, 1, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
-
     /* Interface Descriptor 2 */
     0x09,                           /* Descriptor size */
     CY_U3P_USB_INTRFC_DESCR,        /* Interface Descriptor type */
@@ -402,9 +384,6 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
     0x00,                            /* Servicing interval for data transfers : 0 for bulk */
 
     //////////////////////////////
-
-    //IAD Header
-    0x8, 0xB, 2, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
 
     /* Interface Descriptor 3 */
     0x09,                           /* Descriptor size */
@@ -445,9 +424,6 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
     //////////////////////////////
 
     //MIDI
-
-    //IAD Header
-    0x8, 0xB, MIDI_AC_INTERFACE, 2, MIDI_AUDIO, MIDI_AUDIO_CONTROL, 0x0, 0x00,
 
     0x9, CY_U3P_USB_INTRFC_DESCR, MIDI_AC_INTERFACE, 0x0, 0, MIDI_AUDIO, MIDI_AUDIO_CONTROL, 0x0, 0x06,
     0x9, MIDI_CS_INTERFACE, 0x1, 0x00, 0x01, 0x09, 0x00, 0x1, MIDI_INTERFACE,
@@ -471,15 +447,12 @@ const uint8_t CyFxUSBFSConfigDscr1[] __attribute__((aligned(32))) =
 {
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
-    0xE5, 0x00,                     /* wTotalLength */
+    0xC5, 0x00,                     /* wTotalLength */
     0x05,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
     0x32,                           /* Max power consumption of device (in 2mA unit) : 100mA */
-
-    //IAD Header
-    0x8, 0xB, 0, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
 
     /* Interface Descriptor 1 */
     0x09,                           /* Descriptor size */
@@ -519,9 +492,6 @@ const uint8_t CyFxUSBFSConfigDscr1[] __attribute__((aligned(32))) =
 
     //////////////////////////////
 
-    //IAD Header
-    0x8, 0xB, 1, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
-
     /* Interface Descriptor 2 */
     0x09,                           /* Descriptor size */
     CY_U3P_USB_INTRFC_DESCR,        /* Interface Descriptor type */
@@ -559,9 +529,6 @@ const uint8_t CyFxUSBFSConfigDscr1[] __attribute__((aligned(32))) =
     0x00,                            /* Servicing interval for data transfers : 0 for bulk */
 
     //////////////////////////////
-
-    //IAD Header
-    0x8, 0xB, 2, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
 
     /* Interface Descriptor 3 */
     0x09,                           /* Descriptor size */
@@ -602,9 +569,6 @@ const uint8_t CyFxUSBFSConfigDscr1[] __attribute__((aligned(32))) =
     //////////////////////////////
 
     //MIDI
-
-    //IAD Header
-    0x8, 0xB, MIDI_AC_INTERFACE, 2, MIDI_AUDIO, MIDI_AUDIO_CONTROL, 0x0, 0x00,
 
     0x9, CY_U3P_USB_INTRFC_DESCR, MIDI_AC_INTERFACE, 0x0, 0, MIDI_AUDIO, MIDI_AUDIO_CONTROL, 0x0, 0x06,
     0x9, MIDI_CS_INTERFACE, 0x1, 0x00, 0x01, 0x09, 0x00, 0x1, MIDI_INTERFACE,
