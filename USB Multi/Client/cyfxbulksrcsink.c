@@ -63,8 +63,8 @@ static const uint8_t glReqSenseCode[][3] =
 uint8_t CyFxMscScsiInquiryData[] = {
 	    0x05,       /* PQ and PDT */
 	    0x80,       /* Removable device. */
-	    0x06,       /* Version */
-	    0x02,       /* Response data format */
+	    0x00,       /* Version */
+	    0x32,       /* Response data format */
 	    0x5A,       /* Addnl Length (total length minus 4 bytes) */
 	    0x00,
 	    0x00,
