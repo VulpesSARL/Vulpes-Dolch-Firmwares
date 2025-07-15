@@ -61,11 +61,11 @@ static const uint8_t glReqSenseCode[][3] =
 
 // Example static INQUIRY response for a CD-ROM
 uint8_t CyFxMscScsiInquiryData[] = {
-	    0x40,       /* PQ and PDT */
+	    0x05,       /* PQ and PDT */
 	    0x80,       /* Removable device. */
 	    0x06,       /* Version */
 	    0x02,       /* Response data format */
-	    0x60,       /* Addnl Length (total length minus 4 bytes) */
+	    0x5A,       /* Addnl Length (total length minus 4 bytes) */
 	    0x00,
 	    0x00,
 	    0x00,
@@ -77,7 +77,7 @@ uint8_t CyFxMscScsiInquiryData[] = {
 	    'e',
 	    's',
 	    0x00,
-
+        0x00,
 	    'D',        /* Product Id */
 	    'o',
 	    'l',
@@ -90,13 +90,6 @@ uint8_t CyFxMscScsiInquiryData[] = {
 	    'R',
 	    'O',
 	    'M',
-	    ' ',
-	    'D',
-	    'e',
-	    'v',
-	    'i',
-	    'c',
-	    'e',
 	    0x00,
 	    0x00,
 
