@@ -198,13 +198,39 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
 {
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
-    0xE5, 0x00,                     /* wTotalLength */
+    0x20, 0x00,                     /* wTotalLength */
     0x05,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
     0x32,                           /* Max power consumption of device (in 2mA unit) : 100mA */
 
+    //CD-ROM Drive
+    0x09,                   // bLength
+    0x04,                   // bDescriptorType (Interface)
+    0x00,                   // bInterfaceNumber
+    0x00,                   // bAlternateSetting
+    0x02,                   // bNumEndpoints
+    0x08,                   // bInterfaceClass (Mass Storage)
+    0x06,                   // bInterfaceSubClass (SCSI transparent)
+    0x50,                   // bInterfaceProtocol (Bulk-Only)
+    0x03,                   // iInterface
+
+    // Endpoint Descriptor (Bulk IN)
+    0x07,                   // bLength
+    0x05,                   // bDescriptorType (Endpoint)
+    CY_FX_EP_CD_ROM_IN,     // bEndpointAddress (IN endpoint 1)
+    0x02,                   // bmAttributes (Bulk)
+    0x00, 0x04,             // wMaxPacketSize
+    0x00,                   // bInterval
+
+    // Endpoint Descriptor (Bulk OUT)
+    0x07,                   // bLength
+    0x05,                   // bDescriptorType (Endpoint)
+    CY_FX_EP_CD_ROM_OUT,     // bEndpointAddress (OUT endpoint 1)
+    0x02,                   // bmAttributes (Bulk)
+    0x00, 0x04,             // wMaxPacketSize
+    0x00,                   // bInterval
 
     ///////////////////////
 
@@ -215,12 +241,39 @@ const uint8_t CyFxUSBFSConfigDscr1[] __attribute__((aligned(32))) =
 {
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
-    0xE5, 0x00,                     /* wTotalLength */
+    0x20, 0x00,                     /* wTotalLength */
     0x05,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
     0x32,                           /* Max power consumption of device (in 2mA unit) : 100mA */
+
+    //CD-ROM Drive
+    0x09,                   // bLength
+    0x04,                   // bDescriptorType (Interface)
+    0x00,                   // bInterfaceNumber
+    0x00,                   // bAlternateSetting
+    0x02,                   // bNumEndpoints
+    0x08,                   // bInterfaceClass (Mass Storage)
+    0x06,                   // bInterfaceSubClass (SCSI transparent)
+    0x50,                   // bInterfaceProtocol (Bulk-Only)
+    0x03,                   // iInterface
+
+    // Endpoint Descriptor (Bulk IN)
+    0x07,                   // bLength
+    0x05,                   // bDescriptorType (Endpoint)
+    CY_FX_EP_CD_ROM_IN,     // bEndpointAddress (IN endpoint 1)
+    0x02,                   // bmAttributes (Bulk)
+    0x40, 0x00,             // wMaxPacketSize
+    0x00,                   // bInterval
+
+    // Endpoint Descriptor (Bulk OUT)
+    0x07,                   // bLength
+    0x05,                   // bDescriptorType (Endpoint)
+    CY_FX_EP_CD_ROM_OUT,     // bEndpointAddress (OUT endpoint 1)
+    0x02,                   // bmAttributes (Bulk)
+    0x40, 0x00,             // wMaxPacketSize
+    0x00,                   // bInterval
 
     //////////////////////////////
 
