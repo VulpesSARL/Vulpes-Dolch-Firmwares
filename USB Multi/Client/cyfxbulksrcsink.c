@@ -20,6 +20,10 @@ CyBool_t StandbyModeEnable  = CyFalse;   /* Whether standby mode entry is enable
 CyBool_t TriggerStandbyMode = CyFalse;   /* Request to initiate standby entry. */
 CyBool_t glForceLinkU2      = CyFalse;   /* Whether the device should try to initiate U2 mode. */
 
+uint8_t *glMscCbwBuffer = 0;            /* Scratch buffer used for CBW. */
+uint8_t *glMscCswBuffer = 0;            /* Scratch buffer used for CSW. */
+uint8_t *glMscDataBuffer = 0;            /* Scratch buffer used for CSW. */
+
 volatile uint32_t glEp0StatCount = 0;           /* Number of EP0 status events received. */
 uint8_t glEp0Buffer[32] __attribute__ ((aligned (32))); /* Local buffer used for vendor command handling. */
 
@@ -45,11 +49,73 @@ CyU3PTimer glLpmTimer;
 //CD ROM / SCSI Data
 
 // Example static INQUIRY response for a CD-ROM
-uint8_t scsiInquiryResp[36] = {
-    0x05, 0x80, 0x00, 0x01, 0x1F, 0x00, 0x00, 0x00,
-    'F','X','3',' ','C','D','-','R',
-    'O','M',' ','E','m','u','l',' ',
-    '1','.','0','0',' ',' ',' ',' '
+uint8_t scsiInquiryResp[] = {
+	    0x40,       /* PQ and PDT */
+	    0x80,       /* Removable device. */
+	    0x06,       /* Version */
+	    0x02,       /* Response data format */
+	    0x60,       /* Addnl Length (total length minus 4 bytes) */
+	    0x00,
+	    0x00,
+	    0x00,
+
+	    'V',        /* Vendor Id */
+	    'u',
+	    'l',
+	    'p',
+	    'e',
+	    's',
+	    0x00,
+
+	    'D',        /* Product Id */
+	    'o',
+	    'l',
+	    'c',
+	    'h',
+	    ' ',
+	    'C',
+	    'D',
+	    '-',
+	    'R',
+	    'O',
+	    'M',
+	    ' ',
+	    'D',
+	    'e',
+	    'v',
+	    'i',
+	    'c',
+	    'e',
+	    0x00,
+	    0x00,
+
+	    '0',        /* Revision */
+	    '0',
+	    '0',
+	    '1',
+
+	    0, 0, 0, 0,
+	    0, 0, 0, 0,
+	    0, 0, 0, 0,
+	    0, 0, 0, 0,
+	    0, 0, 0, 0, /* 20 bytes of vendor specific info: not used. */
+	    0, 0,       /* Reserved fields for SCSI over USB. */
+
+	    0x00, 0x80, /* SAM-4 spec compliant. */
+	    0x17, 0x30, /* BOT spec compliant. */
+	    0x04, 0x60, /* SPC-4 spec compliant. */
+	    0x04, 0xC0, /* SBC-3 spec compliant. */
+	    0x00, 0x00, /* No more specs. */
+	    0x00, 0x00, /* No more specs. */
+	    0x00, 0x00, /* No more specs. */
+	    0x00, 0x00, /* No more specs. */
+	    0x00, 0x00, /* Reserved. */
+
+	    0, 0, 0, 0, /* Reserved. */
+	    0, 0, 0, 0, /* Reserved. */
+	    0, 0, 0, 0, /* Reserved. */
+	    0, 0, 0, 0, /* Reserved. */
+	    0, 0, 0, 0  /* Reserved. */
 };
 
 void PrepareCSW(void *buffer, uint32_t tag, uint32_t residue, uint8_t status)
@@ -162,6 +228,24 @@ void TimerCb(void)
     CyU3PUsbLPMEnable();
 }
 
+/* Function to initiate sending of data to the USB host. */
+CyU3PReturnStatus_t CyFxSendMscDataToHost (
+    uint8_t  *data,
+    uint32_t length)
+{
+    CyU3PDmaBuffer_t    dmaBuf;
+    CyU3PReturnStatus_t status;
+
+    /* Prepare the DMA Buffer */
+    dmaBuf.buffer = data;
+    dmaBuf.status = 0;
+    dmaBuf.size   = (length + 15) & 0xFFF0;      /* Round up to a multiple of 16.  */
+    dmaBuf.count  = length;
+
+    status = CyU3PDmaChannelSetupSendBuffer (&glChHandleBulkCD_ROM, &dmaBuf);
+    return status;
+}
+
 /* Callback funtion for the DMA event notification. */
 void
 CyFxCDROMDmaCallback (
@@ -171,14 +255,24 @@ CyFxCDROMDmaCallback (
 {
     CyU3PReturnStatus_t status = CY_U3P_SUCCESS;
 
+    CyU3PDebugPrint (4, "CyFxCDROMDmaCallback()\r\n");
+
     if (type == CY_U3P_DMA_CB_PROD_EVENT)
     {
         /* This is a produce event notification to the CPU. This notification is
          * received upon reception of every buffer. The buffer will not be sent
          * out unless it is explicitly committed. */
 
-    	CBW *cbw = (struct CBW*)input->buffer_p.buffer;
-    	int BufferSZ = 0;
+        CBW *cbw = (struct CBW*)input->buffer_p.buffer;
+        int BufferSZ = 0;
+        uint8_t *dataBuffer = 0;
+
+        // Validate CBW signature
+        if (cbw->dCBWSignature != 0x43425355)
+        {
+            CyU3PDebugPrint(4, "Invalid CBW signature\r\n");
+            return;
+        }
 
 #ifdef DEBUG
 
@@ -200,27 +294,41 @@ CyFxCDROMDmaCallback (
 
         switch (cbw->CBWCB[0]) {
             case SCSI_INQUIRY:
-                PrepareCSW(&input->buffer_p.buffer[BufferSZ],cbw->dCBWTag, 0, 0);
-                BufferSZ+=sizeof(CSW);
-            	CyU3PMemCopy(input->buffer_p.buffer, scsiInquiryResp, sizeof(scsiInquiryResp));
-            	BufferSZ+=sizeof(scsiInquiryResp);
+                // Copy inquiry data to buffer after CBW
+            	dataBuffer = scsiInquiryResp;
+                BufferSZ += sizeof(scsiInquiryResp);
                 break;
             case SCSI_TEST_UNIT_READY:
-            case SCSI_REQUEST_SENSE:
             case SCSI_READ_CAPACITY:
-                // Stub implementation, return zero or dummy values
-                // Extend here with real logic if needed
-                PrepareCSW(&input->buffer_p.buffer[BufferSZ], cbw->dCBWTag, 0, 1); // Command failed
-                BufferSZ+=sizeof(CSW);
+                // Indicate failure (medium not present)
+            	dataBuffer = input->buffer_p.buffer;
+                PrepareCSW(&input->buffer_p.buffer[BufferSZ], cbw->dCBWTag, cbw->dCBWDataTransferLength, 1); // Status: 1 = failed
+                BufferSZ += sizeof(CSW);
+                break;
+            case SCSI_REQUEST_SENSE:
+                {
+                	dataBuffer = input->buffer_p.buffer;
+                	// Sense Key: NOT READY (0x02), ASC: 0x3A, ASCQ: 0x00 (Medium Not Present)
+                    uint8_t senseData[18] = {
+                        0x70, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x0A,
+                        0x00, 0x00, 0x00, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00
+                    };
+                    CyU3PMemCopy(input->buffer_p.buffer + BufferSZ, senseData, sizeof(senseData));
+                    BufferSZ += sizeof(senseData);
+                    PrepareCSW(&input->buffer_p.buffer[BufferSZ], cbw->dCBWTag, cbw->dCBWDataTransferLength - sizeof(senseData), 0);
+                    BufferSZ += sizeof(CSW);                
+                }
                 break;
             default:
-                PrepareCSW(&input->buffer_p.buffer[BufferSZ], cbw->dCBWTag, 0, 1); // Command failed
-                BufferSZ+=sizeof(CSW);
+                // Return failed status for unsupported commands
+            	dataBuffer = input->buffer_p.buffer;
+            	PrepareCSW(input->buffer_p.buffer + BufferSZ, cbw->dCBWTag, cbw->dCBWDataTransferLength, 1);
+                BufferSZ += sizeof(CSW);
                 break;
         }
 
         /* Now commit the data. */
-        status = CyU3PDmaChannelCommitBuffer (chHandle, BufferSZ, 0);
+        status = CyFxSendMscDataToHost(dataBuffer, BufferSZ);
         if (status != CY_U3P_SUCCESS)
         {
             CyU3PDebugPrint (4, "CyU3PDmaChannelCommitBuffer failed, Error code = %d\n", status);
@@ -273,7 +381,7 @@ CyFxBulkSrcSinkApplnStart (
         size = 512;
         break;
 
-    case  CY_U3P_SUPER_SPEED:
+    case CY_U3P_SUPER_SPEED:
         size = 1024;
         break;
 
@@ -281,6 +389,14 @@ CyFxBulkSrcSinkApplnStart (
         CyU3PDebugPrint (4, "Error! Invalid USB speed.\n");
         CyFxAppErrorHandler (CY_U3P_ERROR_FAILURE);
         break;
+    }
+
+    glMscCbwBuffer = (uint8_t*)CyU3PDmaBufferAlloc(1024);
+    glMscCswBuffer = (uint8_t*)CyU3PDmaBufferAlloc(1024);
+    glMscDataBuffer = (uint8_t*)CyU3PDmaBufferAlloc((1024 * 2));
+    if ((glMscCbwBuffer == 0) || (glMscCswBuffer == 0) || (glMscDataBuffer == 0))
+    {
+        goto destroy;
     }
 
     CyU3PMemSet ((uint8_t *)&epCfg, 0, sizeof (epCfg));
@@ -355,6 +471,23 @@ CyFxBulkSrcSinkApplnStart (
 
     /* Update the flag so that the application thread is notified of this. */
     glIsApplnActive = CyTrue;
+
+    return;
+
+destroy:
+    if (glMscCbwBuffer)
+        CyU3PDmaBufferFree(glMscCbwBuffer);
+    if (glMscCswBuffer)
+        CyU3PDmaBufferFree(glMscCswBuffer);
+    if (glMscDataBuffer)
+        CyU3PDmaBufferFree(glMscDataBuffer);
+
+    glMscCbwBuffer = 0;
+    glMscCswBuffer = 0;
+    glMscDataBuffer = 0;
+
+    CyU3PDmaChannelDestroy(&glChHandleBulkCD_ROM);
+
 }
 
 /* This function stops the application. This shall be called whenever a RESET
@@ -396,6 +529,17 @@ CyFxBulkSrcSinkApplnStop (
         CyU3PDebugPrint (4, "CyU3PSetEpConfig failed, Error code = %d\n", apiRetStatus);
         CyFxAppErrorHandler (apiRetStatus);
     }
+
+    if (glMscCbwBuffer)
+        CyU3PDmaBufferFree(glMscCbwBuffer);
+    if (glMscCswBuffer)
+        CyU3PDmaBufferFree(glMscCswBuffer);
+    if (glMscDataBuffer)
+        CyU3PDmaBufferFree(glMscDataBuffer);
+
+    glMscCbwBuffer = 0;
+    glMscCswBuffer = 0;
+    glMscDataBuffer = 0;
 }
 
 /* Callback to handle the USB setup requests. */
