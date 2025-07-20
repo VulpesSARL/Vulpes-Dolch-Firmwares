@@ -135,62 +135,6 @@ const uint8_t CyFxUSBSSConfigDscr1[] __attribute__((aligned(32))) =
     (CY_FX_EP_BURST_LENGTH - 1),    /* Max no. of packets in a burst(0-15) - 0: burst 1 packet at a time */
     0x00,                           /* Max streams for bulk EP = 0 (No streams) */
     0x00,0x00,                      /* Service interval for the EP : 0 for bulk */
-
-#ifdef BLAH
-    //IAD Header
-    0x8, 0xB, 0, 1, 0x3 /* HID */, 0 /* no subclass */, 0x0, 0x00,
-
-    /* Interface Descriptor 1 */
-    0x09,                           /* Descriptor size */
-    CY_U3P_USB_INTRFC_DESCR,        /* Interface Descriptor type */
-    0x00,                           /* Interface number */
-    0x00,                           /* Alternate setting number */
-    0x02,                           /* Number of end points */
-    0x03,                           /* Interface class : HID Class */
-    0x00,                           /* Interface sub class : None */
-    0x00,                           /* Interface protocol code : None */
-    0x03,                           /* Interface descriptor string index */
-
-    /* HID Descriptor */
-    0x09,                           /* Descriptor size */
-    CY_FX_USB_HID_DESC_TYPE,        /* Descriptor Type */
-    0x10,0x11,                      /* HID Class Spec 11.1 */
-    0x00,                           /* Target Country */
-    0x01,                           /* Total HID Class Descriptors */
-    0x22,                           /* Report Descriptor Type */
-    0x1A,0x00,                      /* Total Length of Report Descriptor */
-
-    /* Endpoint Descriptor 1 */
-    0x07,                           /* Descriptor size */
-    CY_U3P_USB_ENDPNT_DESCR,        /* Endpoint Descriptor Type */
-    CY_FX_EP_PRODUCER1,              /* Endpoint address and description */
-    CY_U3P_USB_EP_BULK,             /* Bulk Endpoint Type */
-    0x00,0x04,                      /* Max packet size = 1024 bytes */
-    0x00,                            /* Servicing interval for data transfers : 0 for bulk */
-
-    /* Super speed endpoint companion descriptor for consumer EP */
-    0x06,                           /* Descriptor size */
-    CY_U3P_SS_EP_COMPN_DESCR,       /* SS endpoint companion descriptor type */
-    (CY_FX_EP_BURST_LENGTH - 1),    /* Max no. of packets in a burst(0-15) - 0: burst 1 packet at a time */
-    0x00,                           /* Max streams for bulk EP = 0 (No streams) */
-    0x00,0x00,                      /* Service interval for the EP : 0 for bulk */
-
-    /* Endpoint Descriptor */
-    0x07,                           /* Descriptor size */
-    CY_U3P_USB_ENDPNT_DESCR,        /* Endpoint Descriptor Type */
-    CY_FX_EP_CONSUMER1,              /* Endpoint address and description */
-    CY_U3P_USB_EP_BULK,             /* Bulk Endpoint Type */
-    0x00,0x04,                      /* Max packet size = 1024 bytes */
-    0x00,                            /* Servicing interval for data transfers : 0 for bulk */
-
-    /* Super speed endpoint companion descriptor for consumer EP */
-    0x06,                           /* Descriptor size */
-    CY_U3P_SS_EP_COMPN_DESCR,       /* SS endpoint companion descriptor type */
-    (CY_FX_EP_BURST_LENGTH - 1),    /* Max no. of packets in a burst(0-15) - 0: burst 1 packet at a time */
-    0x00,                           /* Max streams for bulk EP = 0 (No streams) */
-    0x00,0x00,                      /* Service interval for the EP : 0 for bulk */
-#endif
-
 };
 
 /* Standard high speed configuration descriptor */
@@ -199,7 +143,7 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
     0x20, 0x00,                     /* wTotalLength */
-    0x05,                           /* Number of interfaces */
+    0x01,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
@@ -242,7 +186,7 @@ const uint8_t CyFxUSBFSConfigDscr1[] __attribute__((aligned(32))) =
     /* Config Descriptor */
     0x09, CY_U3P_USB_CONFIG_DESCR,
     0x20, 0x00,                     /* wTotalLength */
-    0x05,                           /* Number of interfaces */
+    0x01,                           /* Number of interfaces */
     0x01,                           /* Configuration number */
     0x00,                           /* Configuration string index */
     0x80,                           /* Config characteristics - Bus powered */
