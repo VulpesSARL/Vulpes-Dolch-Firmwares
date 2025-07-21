@@ -75,9 +75,9 @@ const uint8_t CyFxUSBDeviceQualDscr[] __attribute__((aligned(32))) =
     0x0A,                           /* Descriptor size */
     CY_U3P_USB_DEVQUAL_DESCR,       /* Device qualifier descriptor type */
     0x00,0x02,                      /* USB 2.0 */
-    0xEF,                           /* Device class */
-    0x02,                           /* Device sub-class */
-    0x01,                           /* Device protocol */
+    0x00,                           /* Device class */
+    0x00,                           /* Device sub-class */
+    0x00,                           /* Device protocol */
     0x40,                           /* Maxpacket size for EP0 : 64 bytes */
     0x01,                           /* Number of configurations */
     0x00                            /* Reserved */
@@ -165,7 +165,7 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
     0x05,                   // bDescriptorType (Endpoint)
     CY_FX_EP_CD_ROM_IN,     // bEndpointAddress (IN endpoint 1)
     0x02,                   // bmAttributes (Bulk)
-    0x00, 0x04,             // wMaxPacketSize
+    0x00, 0x02,             // wMaxPacketSize
     0x00,                   // bInterval
 
     // Endpoint Descriptor (Bulk OUT)
@@ -173,7 +173,7 @@ const uint8_t CyFxUSBHSConfigDscr1[] __attribute__((aligned(32))) =
     0x05,                   // bDescriptorType (Endpoint)
     CY_FX_EP_CD_ROM_OUT,     // bEndpointAddress (OUT endpoint 1)
     0x02,                   // bmAttributes (Bulk)
-    0x00, 0x04,             // wMaxPacketSize
+    0x00, 0x02,             // wMaxPacketSize
     0x00,                   // bInterval
 
     ///////////////////////
